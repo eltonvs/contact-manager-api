@@ -25,6 +25,7 @@ class ContactModelTest(APITestCase):
         self.assertEqual(self.created_contact.first_name, 'John')
         self.assertEqual(self.created_contact.last_name, 'Doe')
         self.assertEqual(self.created_contact.date_of_birth, date(1980, 10, 5))
+        self.assertEqual(str(self.created_contact), "John Doe")
 
 
 # View Tests
@@ -185,6 +186,16 @@ class UpdateContactTest(BaseViewTest):
 
         self.assertEqual(response.data, self.valid_contact_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_an_nonexistent_contact(self):
+        """
+        This test ensures that a nonexistent contact cannot be updated
+        """
+        # Use the API endpoint to update a contact
+        response = self.update_contact(contact_id=self.invalid_contact_id, new_data=self.valid_contact_data)
+
+        self.assertTrue('not exist' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_contact_with_empty_values(self):
         """
