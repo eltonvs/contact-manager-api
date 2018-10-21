@@ -11,4 +11,9 @@ class Contact(models.Model):
 
 
 class EmailField(models.Model):
-    pass
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=100, unique=True, blank=False, null=False)
+    primary = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.phone
