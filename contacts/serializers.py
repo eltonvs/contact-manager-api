@@ -3,6 +3,10 @@ from rest_framework import serializers
 from contacts.models import Contact
 
 
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    pass
+
+
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
