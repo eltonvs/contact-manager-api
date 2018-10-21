@@ -1,8 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from contacts.decorators import validate_request_data
-from contacts.models import Contact
+from contacts.decorators import validate_contact_data, validate_phone_number_data
+from contacts.models import Contact, PhoneNumber
 from contacts.serializers import ContactSerializer
 
 
@@ -13,13 +13,20 @@ class ListContactsView(generics.ListCreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
 
-    @validate_request_data
+    @validate_contact_data
+    @validate_phone_number_data
     def post(self, request, *args, **kwargs):
         created_contact = Contact.objects.create(
             first_name=request.data['first_name'],
             last_name=request.data['last_name'],
             date_of_birth=request.data['date_of_birth']
         )
+        for phone_number in request.data['phone_numbers']:
+            PhoneNumber.objects.create(
+                contact=created_contact,
+                phone=phone_number['phone'],
+                primary=phone_number.get('primary', False)
+            )
         return Response(data=self.serializer_class(created_contact).data, status=status.HTTP_201_CREATED)
 
 
@@ -34,7 +41,7 @@ class ContactDetailsView(generics.RetrieveUpdateDestroyAPIView):
         except Contact.DoesNotExist:
             return Response(data={'message': 'The requested contact does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-    @validate_request_data
+    @validate_contact_data
     def put(self, request, *args, **kwargs):
         try:
             original_contact = self.queryset.get(pk=kwargs['contact_id'])
