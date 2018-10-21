@@ -1,11 +1,21 @@
 import json
 from datetime import date
+from django.apps import apps
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 
+from contacts.apps import ContactsConfig
 from contacts.models import Contact, EmailField
 from contacts.serializers import ContactSerializer
+
+
+# App Tests
+
+class ContactConfigTest(APITestCase):
+    def test_apps(self):
+        self.assertEqual(ContactsConfig.name, 'contacts')
+        self.assertEqual(apps.get_app_config('contacts').name, 'contacts')
 
 
 # Models Tests
