@@ -2,7 +2,7 @@ from datetime import date
 
 from rest_framework.test import APITestCase
 
-from contacts.models import Contact, EmailField
+from contacts.models import Contact, PhoneNumber
 
 
 class ContactModelTest(APITestCase):
@@ -23,14 +23,14 @@ class ContactModelTest(APITestCase):
         self.assertEqual(str(self.created_contact), "John Doe")
 
 
-class EmailFieldModelTest(APITestCase):
+class PhoneNumberModelTest(APITestCase):
     def setUp(self):
         self.created_contact = Contact.objects.create(
             first_name='John',
             last_name='Doe',
             date_of_birth=date(1980, 10, 5)
         )
-        self.created_email = EmailField.objects.create(
+        self.created_email = PhoneNumber.objects.create(
             contact=self.created_contact,
             phone='+1 202 555 0104',
             primary=True
