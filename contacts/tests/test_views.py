@@ -1,67 +1,13 @@
 import json
 from datetime import date
-from django.apps import apps
 from django.urls import reverse
 from rest_framework import status
+
 from rest_framework.test import APITestCase, APIClient
 
-from contacts.apps import ContactsConfig
-from contacts.models import Contact, EmailField
+from contacts.models import Contact
 from contacts.serializers import ContactSerializer
 
-
-# App Tests
-
-class ContactConfigTest(APITestCase):
-    def test_apps(self):
-        self.assertEqual(ContactsConfig.name, 'contacts')
-        self.assertEqual(apps.get_app_config('contacts').name, 'contacts')
-
-
-# Models Tests
-
-class ContactModelTest(APITestCase):
-    def setUp(self):
-        self.created_contact = Contact.objects.create(
-            first_name='John',
-            last_name='Doe',
-            date_of_birth=date(1980, 10, 5)
-        )
-
-    def test_contact(self):
-        """
-        Simple test to ensure that the contact created in the setup exists
-        """
-        self.assertEqual(self.created_contact.first_name, 'John')
-        self.assertEqual(self.created_contact.last_name, 'Doe')
-        self.assertEqual(self.created_contact.date_of_birth, date(1980, 10, 5))
-        self.assertEqual(str(self.created_contact), "John Doe")
-
-
-class EmailFieldModelTest(APITestCase):
-    def setUp(self):
-        self.created_contact = Contact.objects.create(
-            first_name='John',
-            last_name='Doe',
-            date_of_birth=date(1980, 10, 5)
-        )
-        self.created_email = EmailField.objects.create(
-            contact=self.created_contact,
-            phone='+1 202 555 0104',
-            primary=True
-        )
-
-    def test_email_field(self):
-        """
-        Simple test to ensure that the email created in the setup exists
-        """
-        self.assertEqual(self.created_email.contact, self.created_contact)
-        self.assertEqual(self.created_email.phone, '+1 202 555 0104')
-        self.assertEqual(self.created_email.primary, True)
-        self.assertEqual(str(self.created_email), '+1 202 555 0104')
-
-
-# View Tests
 
 class BaseViewTest(APITestCase):
     client = APIClient()
