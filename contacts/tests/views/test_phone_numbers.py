@@ -80,6 +80,7 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         response = self.add_phone_number(self.valid_contact_id, phone_number_data)
 
         self.assertTrue('already registered' in response.data['message'])
+        self.assertTrue('phone' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_add_an_empty_phone_number_to_a_contact(self):
@@ -110,6 +111,7 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         response = self.add_phone_number(self.nonexistent_contact_id, self.valid_phone_number_data)
 
         self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('contact' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -141,6 +143,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
         )
 
         self.assertTrue('already registered' in response.data['message'])
+        self.assertTrue('phone' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_update_a_phone_number_with_empty_values(self):
@@ -183,6 +186,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
         )
 
         self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('contact' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_nonexistent_phone_number_from_a_contact(self):
@@ -197,6 +201,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
         )
 
         self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('phone' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 

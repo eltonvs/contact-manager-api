@@ -1,5 +1,3 @@
-from datetime import date
-
 import json
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIClient
