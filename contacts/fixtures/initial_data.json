@@ -1,0 +1,65 @@
+[
+  {
+    "model": "contacts.contact",
+    "pk": 1,
+    "fields": {
+      "first_name": "Elton",
+      "last_name": "John",
+      "date_of_birth": "1947-03-25"
+    }
+  },
+  {
+    "model": "contacts.contact",
+    "pk": 2,
+    "fields": {
+      "first_name": "Elvis",
+      "last_name": "Presley",
+      "date_of_birth": "1935-01-08"
+    }
+  },
+  {
+    "model": "contacts.contact",
+    "pk": 3,
+    "fields": {
+      "first_name": "Marilyn",
+      "last_name": "Monroe",
+      "date_of_birth": "1926-06-01"
+    }
+  },
+  {
+    "model": "contacts.phonenumber",
+    "pk": 1,
+    "fields": {
+      "contact": 1,
+      "phone": "+44 7911 123456",
+      "primary": true
+    }
+  },
+  {
+    "model": "contacts.phonenumber",
+    "pk": 2,
+    "fields": {
+      "contact": 2,
+      "phone": "+1 123 456 7890",
+      "primary": true
+    }
+  },
+  {
+    "model": "contacts.phonenumber",
+    "pk": 3,
+    "fields": {
+      "contact": 3,
+      "phone": "+1 000 111 2222",
+      "primary": true
+    }
+  },
+  {
+    "model": "contacts.phonenumber",
+    "pk": 4,
+    "fields": {
+      "contact": 3,
+      "phone": "+1 321 654 0987",
+      "primary": false
+    }
+  }
+]

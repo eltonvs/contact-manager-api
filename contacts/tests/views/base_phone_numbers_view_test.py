@@ -5,11 +5,11 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase, APIClient
 
 from contacts.models import PhoneNumber
-from contacts.tests.views.base_contact_view_test import BaseContactViewTest
 
 
 class BasePhoneNumbersViewTest(APITestCase):
     client = APIClient()
+    fixtures = ['initial_data.json']
 
     @staticmethod
     def insert_phone_number(contact_id, phone, is_primary=False):
@@ -23,17 +23,6 @@ class BasePhoneNumbersViewTest(APITestCase):
             PhoneNumber.objects.create(contact_id=contact_id, phone=phone, primary=is_primary)
 
     def setUp(self):
-        # Populate database
-        BaseContactViewTest.insert_contact(
-            'Elton', 'John', date(1947, 3, 25), [{'phone': '+44 7911 123456', 'primary': True}]
-        )
-        BaseContactViewTest.insert_contact(
-            'Elvis', 'Presley', date(1935, 1, 8), [{'phone': '+1 123 456 7890', 'primary': True}]
-        )
-        BaseContactViewTest.insert_contact(
-            'Marilyn', 'Monroe', date(1926, 6, 1),
-            [{'phone': '+1 000 111 2222', 'primary': True}, {'phone': '+1 321 654 0987'}]
-        )
         # Default Values
         self.valid_contact_id = 1
         self.valid_contact_phone_number = '+44 7911 123456'

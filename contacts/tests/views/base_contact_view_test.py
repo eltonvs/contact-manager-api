@@ -1,14 +1,15 @@
 import json
-from datetime import date
 from rest_framework.reverse import reverse
 
 from rest_framework.test import APITestCase, APIClient
 
 from contacts.models import Contact, PhoneNumber
+from contacts.tests.views.base_phone_numbers_view_test import BasePhoneNumbersViewTest
 
 
 class BaseContactViewTest(APITestCase):
     client = APIClient()
+    fixtures = ['initial_data.json']
 
     @staticmethod
     def insert_contact(first_name, last_name, date_of_birth, phone_numbers):
@@ -22,18 +23,11 @@ class BaseContactViewTest(APITestCase):
         if first_name != '' and last_name != '' and date_of_birth and phone_numbers:
             contact = Contact.objects.create(first_name=first_name, last_name=last_name, date_of_birth=date_of_birth)
             for phone_number in phone_numbers:
-                PhoneNumber.objects.create(
-                    contact=contact, phone=phone_number['phone'], primary=phone_number.get('primary', False)
+                BasePhoneNumbersViewTest.insert_phone_number(
+                    contact_id=contact.id, phone=phone_number['phone'], is_primary=phone_number.get('primary', False)
                 )
 
     def setUp(self):
-        # Populate database
-        self.insert_contact('Elton', 'John', date(1947, 3, 25), [{'phone': '+44 7911 123456', 'primary': True}])
-        self.insert_contact('Elvis', 'Presley', date(1935, 1, 8), [{'phone': '+1 123 456 7890', 'primary': True}])
-        self.insert_contact(
-            'Marilyn', 'Monroe', date(1926, 6, 1),
-            [{'phone': '+1 000 111 2222', 'primary': True}, {'phone': '+1 321 654 0987'}]
-        )
         # Default Values
         self.valid_contact_id = 1
         self.valid_contact_id_with_multiple_phones = 3
