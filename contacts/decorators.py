@@ -25,3 +25,14 @@ def validate_phone_number_data(func):
         return func(*args, **kwargs)
 
     return decorated
+
+
+def validate_phone_number(func):
+    def decorated(*args, **kwargs):
+        phone = args[0].request.data.get('phone', '')
+
+        if not phone:
+            return Response(data={"message": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+        return func(*args, **kwargs)
+
+    return decorated
