@@ -15,5 +15,8 @@ class PhoneNumber(models.Model):
     phone = models.CharField(max_length=100, blank=False, null=False)
     primary = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('contact', 'phone'),
+
     def __str__(self):
         return self.phone
