@@ -20,3 +20,7 @@ class PhoneNumber(models.Model):
 
     def __str__(self):
         return self.phone
+
+
+class EmailField(models.Model):
+    pass
