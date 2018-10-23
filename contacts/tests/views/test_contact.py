@@ -93,7 +93,6 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that a single contact (with multiple addresses) can be created
         """
         # Use the API endpoint to create a new contact
-        self.maxDiff = None
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
                         **self.multiple_valid_address_data}
         response = self.create_contact(contact_data)
@@ -358,7 +357,7 @@ class UpdateContactTest(BaseContactViewTest):
         This test ensures that a single contact can be updated
         """
         # Use the API endpoint to update a contact
-        contact_phones = {'phone_numbers': [{'phone': '+1 123 456 7890', 'primary': True}]}
+        contact_phones = {'phone_numbers': ['+1 123 456 7890']}
         contact_emails = {'emails': ['elvis_presley@example.com']}
         contact_addresses = {
             'addresses': [{'address': '3765 Elvis Presley Blvd.', 'city': 'Memphis', 'state': 'Tennessee',
