@@ -211,18 +211,32 @@ class RemoveAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
         This test ensures that a single contact can be removed
         """
         # Use the API endpoint to remove a contact
-        response = self.remove_phone_number(
-            contact_id=self.valid_contact_id,
-            phone_number=self.valid_contact_phone_number
-        )
+        contact_phone_number = '+1 000 111 2222'
+        response = self.remove_phone_number(contact_id=3, phone_number=contact_phone_number)
 
         try:
-            PhoneNumber.objects.get(contact_id=self.valid_contact_id, phone=self.valid_contact_phone_number)
+            PhoneNumber.objects.get(contact_id=self.valid_contact_id, phone=contact_phone_number)
             self.fail()
         except PhoneNumber.DoesNotExist:
             pass
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_remove_the_last_phone_number_from_a_contact(self):
+        """
+        This test ensures that the last single phone number from a contact cannot be removed
+        """
+        # Use the API endpoint to remove a contact
+        response = self.remove_phone_number(
+            contact_id=self.valid_contact_id,
+            phone_number=self.valid_contact_phone_number
+        )
+
+        phone_number = PhoneNumber.objects.get(contact_id=self.valid_contact_id, phone=self.valid_contact_phone_number)
+
+        self.assertEqual(phone_number.phone, self.valid_contact_phone_number)
+        self.assertTrue('phone' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_remove_a_nonexistent_phone_number(self):
         """

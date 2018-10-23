@@ -209,10 +209,7 @@ class RemoveAEmailFromAContactTest(BaseEmailFieldViewTest):
         This test ensures that a single email from a contact can be removed
         """
         # Use the API endpoint to remove a contact
-        response = self.remove_email(
-            contact_id=self.valid_contact_id,
-            email=self.valid_contact_email
-        )
+        response = self.remove_email(contact_id=self.valid_contact_id, email=self.valid_contact_email)
 
         try:
             EmailField.objects.get(contact_id=self.valid_contact_id, email=self.valid_contact_email)
@@ -221,6 +218,20 @@ class RemoveAEmailFromAContactTest(BaseEmailFieldViewTest):
             pass
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_remove_the_last_email_from_a_contact(self):
+        """
+        This test ensures that the last single email from a contact cannot be removed
+        """
+        # Use the API endpoint to remove a contact
+        contact_email = 'elvis_presley@example.com'
+        response = self.remove_email(contact_id=2, email=contact_email)
+
+        email = EmailField.objects.get(contact_id=2, email=contact_email)
+
+        self.assertEqual(email.email, contact_email)
+        self.assertTrue('email' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_remove_a_nonexistent_email(self):
         """
