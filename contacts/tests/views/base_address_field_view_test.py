@@ -44,7 +44,7 @@ class BaseAddressFieldViewTest(APITestCase):
             'address': '1722 Heron Way',
             'city': 'Portland',
             'state': 'Oregon',
-            'country': 'United Stated',
+            'country': 'United States',
             'zip_code': '97205',
         }
         self.valid_address_data = {'address': self.valid_address}
