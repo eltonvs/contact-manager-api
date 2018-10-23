@@ -93,5 +93,41 @@
       "contact": 3,
       "email": "marilyn@monroe.com"
     }
+  },
+  {
+    "model": "contacts.addressfield",
+    "pk": 1,
+    "fields": {
+      "contact": 1,
+      "address": "1 Blythe Road",
+      "city": "London",
+      "state": "Hammersmith",
+      "country": "United Kingdom",
+      "zip_code": "W14 0HG"
+    }
+  },
+  {
+    "model": "contacts.addressfield",
+    "pk": 2,
+    "fields": {
+      "contact": 2,
+      "address": "3765 Elvis Presley Blvd.",
+      "city": "Memphis",
+      "state": "Tennessee",
+      "country": "United States",
+      "zip_code": "38116"
+    }
+  },
+  {
+    "model": "contacts.addressfield",
+    "pk": 3,
+    "fields": {
+      "contact": 3,
+      "address": "12305 Fifth Helena Drive, Brentwood",
+      "city": "Los Angeles",
+      "state": "California",
+      "country": "United States",
+      "zip_code": "90049"
+    }
   }
 ]

@@ -31,4 +31,15 @@ class EmailField(models.Model):
 
 
 class AddressField(models.Model):
-    pass
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='addresses')
+    address = models.CharField(max_length=512)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    country = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=20)
+
+    class Meta:
+        unique_together = ('contact', 'address', 'city', 'state', 'country', 'zip_code')
+
+    def __str__(self):
+        return "{}, {} - {}, {}, {}".format(self.address, self.city, self.state, self.country, self.zip_code)
