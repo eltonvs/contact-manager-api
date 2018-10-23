@@ -49,11 +49,13 @@ class BaseContactViewTest(APITestCase):
             'date_of_birth': '',
             'emails': [],
         }
+
         self.valid_email_data = {'emails': ['john_doe@example.com']}
         self.valid_multiple_email_data = {'emails': ['john_doe@example.com', 'me@johndoe.com', 'john@doe.com']}
         self.invalid_multiple_email_data = {'emails': ['john_doe@example.com', 'me@johndoe.com', 'john@doe.com', '123']}
         self.empty_email_data = {'emails': []}
         self.email_data_with_empty_email = {'emails': ['']}
+        self.empty_address_data = {'addresses': []}
         self.valid_phone_data = {
             'phone_numbers': [
                 {

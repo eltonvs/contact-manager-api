@@ -1,8 +1,9 @@
 from datetime import date
+from django.template.base import kwarg_re
 
 from rest_framework.test import APITestCase
 
-from contacts.models import Contact, PhoneNumber, EmailField
+from contacts.models import Contact, PhoneNumber, EmailField, AddressField
 
 
 class ContactModelTest(APITestCase):
@@ -65,3 +66,40 @@ class EmailFieldModelTest(APITestCase):
         self.assertEqual(self.created_contact, self.created_email.contact)
         self.assertEqual('user@example.com', self.created_email.email)
         self.assertEqual('user@example.com', str(self.created_email))
+
+
+class AddressFieldModelTest(APITestCase):
+    def setUp(self):
+        self.sample_address = {
+            'address': '1722 Heron Way',
+            'city': 'Portland',
+            'state': 'OR',
+            'country': 'USA',
+            'zip_code': '97205',
+        }
+        self.created_contact = Contact.objects.create(
+            first_name='John',
+            last_name='Doe',
+            date_of_birth=date(1980, 10, 5)
+        )
+        self.created_address = AddressField.objects.create(
+            contact=self.created_contact,
+            address=self.sample_address['address'],
+            city=self.sample_address['city'],
+            state=self.sample_address['state'],
+            country=self.sample_address['country'],
+            zip_code=self.sample_address['zip_code'],
+        )
+
+    def test_address_field(self):
+        """
+        Simple test to ensure that the address created in the setup exists
+        """
+        self.assertEqual(self.created_contact, self.created_address.contact)
+        self.assertEqual(self.sample_address['address'], self.created_address.address)
+        self.assertEqual(self.sample_address['city'], self.created_address.city)
+        self.assertEqual(self.sample_address['state'], self.created_address.state)
+        self.assertEqual(self.sample_address['country'], self.created_address.country)
+        self.assertEqual(self.sample_address['zip_code'], self.created_address.zip_code)
+        formatted_address = '{}, {} - {}, {}, {}'.format(*self.sample_address.values())
+        self.assertEqual(formatted_address, str(self.created_address))
