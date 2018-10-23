@@ -76,6 +76,44 @@ class CreateContactTest(BaseContactViewTest):
         self.assertEqual(response.json(), contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_a_contact_with_an_address(self):
+        """
+        This test ensures that a single contact (with an address) can be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
+                        **self.valid_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertEqual(response.json(), contact_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_a_contact_with_multiple_addresses(self):
+        """
+        This test ensures that a single contact (with multiple addresses) can be created
+        """
+        # Use the API endpoint to create a new contact
+        self.maxDiff = None
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
+                        **self.multiple_valid_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertEqual(response.json(), contact_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_a_contact_with_invalid_multiple_addresses(self):
+        """
+        This test ensures that a single contact with invalid multiple addresses cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
+                        **self.multiple_invalid_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('address' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_create_a_contact_with_multiple_phones(self):
         """
         This test ensures that a single contact can be created
@@ -88,6 +126,33 @@ class CreateContactTest(BaseContactViewTest):
         self.assertEqual(response.json(), contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_a_contact_with_an_invalid_address(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
+                        **self.invalid_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('address' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_with_duplicated_addresses(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_addresses = {'addresses': [self.valid_address, self.valid_address]}
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
+                        **contact_addresses}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('duplicated' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
     def test_create_a_contact_with_invalid_multiple_phones(self):
         """
         This test ensures that a single contact cannot be created
@@ -99,6 +164,19 @@ class CreateContactTest(BaseContactViewTest):
 
         self.assertTrue('required' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_with_duplicated_phones(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_phones = {'phone_numbers': [self.valid_phone, self.valid_phone]}
+        contact_data = {**self.valid_contact_data, **contact_phones, **self.valid_email_data, **self.empty_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('duplicated' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_create_a_contact_without_a_phone(self):
         """
@@ -180,6 +258,19 @@ class CreateContactTest(BaseContactViewTest):
 
         self.assertEqual(response.json(), contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_a_contact_with_duplicated_emails(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_emails = {'emails': [self.valid_email, self.valid_email]}
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **contact_emails, **self.empty_address_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('duplicated' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
     def test_create_a_contact_with_invalid_multiple_emails(self):
         """

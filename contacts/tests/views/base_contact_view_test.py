@@ -3,7 +3,8 @@ from rest_framework.reverse import reverse
 
 from rest_framework.test import APITestCase, APIClient
 
-from contacts.models import Contact
+from contacts.models import Contact, AddressField
+from contacts.tests.views.base_address_field_view_test import BaseAddressFieldViewTest
 from contacts.tests.views.base_email_field_view_test import BaseEmailFieldViewTest
 from contacts.tests.views.base_phone_numbers_view_test import BasePhoneNumbersViewTest
 
@@ -13,7 +14,7 @@ class BaseContactViewTest(APITestCase):
     fixtures = ['initial_data.json']
 
     @staticmethod
-    def insert_contact(first_name, last_name, date_of_birth, phone_numbers, emails):
+    def insert_contact(first_name, last_name, date_of_birth, phone_numbers, emails, addresses=None):
         """
         Create a contact and store on database
         :param first_name:
@@ -21,6 +22,7 @@ class BaseContactViewTest(APITestCase):
         :param date_of_birth:
         :param phone_numbers:
         :param emails:
+        :param addresses:
         """
         if first_name != '' and last_name != '' and date_of_birth and phone_numbers and emails:
             contact = Contact.objects.create(first_name=first_name, last_name=last_name, date_of_birth=date_of_birth)
@@ -30,6 +32,11 @@ class BaseContactViewTest(APITestCase):
                 )
             for email in emails:
                 BaseEmailFieldViewTest.insert_email(contact_id=contact.id, email=email)
+            for address in addresses:
+                BaseAddressFieldViewTest.insert_address(
+                    contact_id=contact.id, address=address['address'], city=address['city'],
+                    state=address['state'], country=address['country'], zip_code=address['zip_code']
+                )
 
     def setUp(self):
         # Default Values
@@ -49,21 +56,32 @@ class BaseContactViewTest(APITestCase):
             'date_of_birth': '',
             'emails': [],
         }
-
-        self.valid_email_data = {'emails': ['john_doe@example.com']}
+        self.valid_email = 'john_doe@example.com'
+        self.valid_email_data = {'emails': [self.valid_email]}
         self.valid_multiple_email_data = {'emails': ['john_doe@example.com', 'me@johndoe.com', 'john@doe.com']}
         self.invalid_multiple_email_data = {'emails': ['john_doe@example.com', 'me@johndoe.com', 'john@doe.com', '123']}
         self.empty_email_data = {'emails': []}
         self.email_data_with_empty_email = {'emails': ['']}
         self.empty_address_data = {'addresses': []}
-        self.valid_phone_data = {
-            'phone_numbers': [
-                {
-                    'phone': '+1 202 555 0104',
-                    'primary': True
-                },
-            ]
+        self.valid_address = {
+            'address': '1722 Heron Way',
+            'city': 'Portland',
+            'state': 'Oregon',
+            'country': 'United States',
+            'zip_code': '97205',
         }
+        self.address_with_empty_fields = {'address': '', 'city': '', 'state': '', 'country': '', 'zip_code': ''}
+        self.valid_address_data = {'addresses': [self.valid_address]}
+        self.multiple_valid_address_data = {
+            'addresses': [{**self.valid_address, **{'city': 'Another City'}}, self.valid_address]
+        }
+        self.multiple_invalid_address_data = {
+            'addresses': [self.valid_address, self.address_with_empty_fields]
+        }
+        self.invalid_address_data = {'addresses': [self.address_with_empty_fields]}
+        self.address_data_with_empty_address = {'addresses': [{}]}
+        self.valid_phone = {'phone': '+1 202 555 0104', 'primary': True}
+        self.valid_phone_data = {'phone_numbers': [self.valid_phone]}
         self.valid_multiple_phone_data = {
             'phone_numbers': [
                 {
