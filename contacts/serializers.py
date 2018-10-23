@@ -15,6 +15,10 @@ class EmailFieldSerializer(serializers.ModelSerializer):
         fields = ('email',)
 
 
+class AddressSerializer(serializers.ModelSerializer):
+    pass
+
+
 class ContactSerializer(serializers.ModelSerializer):
     phone_numbers = PhoneNumberSerializer(many=True)
     emails = serializers.SlugRelatedField(many=True, queryset=[], slug_field='email')
