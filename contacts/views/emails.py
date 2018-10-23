@@ -62,9 +62,12 @@ class EmailDetailsView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         try:
             requested_contact = Contact.objects.get(pk=kwargs['contact_id'])
-            requested_email = requested_contact.emails.get(email=kwargs['email'])
-            requested_email.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if requested_contact.emails.count() > 1:
+                requested_email = requested_contact.emails.get(email=kwargs['email'])
+                requested_email.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            return Response(data={'message': 'This email cannot be deleted'}, status=status.HTTP_400_BAD_REQUEST)
         except Contact.DoesNotExist:
             return Response(data={'message': 'The requested contact does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except EmailField.DoesNotExist:

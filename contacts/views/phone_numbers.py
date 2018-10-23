@@ -70,8 +70,11 @@ class PhoneNumbersDetailsView(generics.RetrieveUpdateDestroyAPIView):
         try:
             requested_contact = Contact.objects.get(pk=kwargs['contact_id'])
             requested_phone_number = requested_contact.phone_numbers.get(phone=kwargs['phone_number'])
-            requested_phone_number.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            if requested_contact.phone_numbers.count() > 1:
+                requested_phone_number.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            return Response(data={'message': 'This phone cannot be deleted'}, status=status.HTTP_400_BAD_REQUEST)
         except Contact.DoesNotExist:
             return Response(data={'message': 'The requested contact does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except PhoneNumber.DoesNotExist:
