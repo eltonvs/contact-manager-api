@@ -23,4 +23,8 @@ class PhoneNumber(models.Model):
 
 
 class EmailField(models.Model):
-    pass
+    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='emails')
+    email = models.EmailField(unique=True)
+
+    def __str__(self):
+        return self.email

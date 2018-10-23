@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -27,6 +29,22 @@ def validate_phone_number_data(func):
     return decorated
 
 
+def validate_emails_data(func):
+    def decorated(*args, **kwargs):
+        emails = args[0].request.data.get('emails', [])
+
+        if not emails or not all(emails):
+            return Response(data={'message': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            [validate_email(email) for email in emails]
+            return func(*args, **kwargs)
+        except ValidationError:
+            return Response(data={'message': 'All emails must be valid'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return decorated
+
+
 def validate_phone_number(func):
     def decorated(*args, **kwargs):
         phone = args[0].request.data.get('phone', '')
@@ -34,5 +52,21 @@ def validate_phone_number(func):
         if not phone:
             return Response(data={"message": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
         return func(*args, **kwargs)
+
+    return decorated
+
+
+def validate_flat_email_data(func):
+    def decorated(*args, **kwargs):
+        email = args[0].request.data.get('email', '')
+
+        if not email:
+            return Response(data={'message': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            validate_email(email)
+            return func(*args, **kwargs)
+        except ValidationError:
+            return Response(data={'message': 'The email must be valid'}, status=status.HTTP_400_BAD_REQUEST)
 
     return decorated

@@ -61,5 +61,37 @@
       "phone": "+1 321 654 0987",
       "primary": false
     }
+  },
+  {
+    "model": "contacts.emailfield",
+    "pk": 1,
+    "fields": {
+      "contact": 1,
+      "email": "me@eltonjohn.com"
+    }
+  },
+  {
+    "model": "contacts.emailfield",
+    "pk": 2,
+    "fields": {
+      "contact": 1,
+      "email": "elton_john@example.com"
+    }
+  },
+  {
+    "model": "contacts.emailfield",
+    "pk": 3,
+    "fields": {
+      "contact": 2,
+      "email": "elvis_presley@example.com"
+    }
+  },
+  {
+    "model": "contacts.emailfield",
+    "pk": 4,
+    "fields": {
+      "contact": 3,
+      "email": "marilyn@monroe.com"
+    }
   }
 ]
