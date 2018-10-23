@@ -22,9 +22,8 @@ def validate_contact_data(func):
 def validate_phone_number_data(func):
     def decorated(*args, **kwargs):
         phone_numbers = args[0].request.data.get('phone_numbers', [])
-        phones = [phone_number.get('phone', '') for phone_number in phone_numbers]
 
-        if not phone_numbers or not all(phones):
+        if not phone_numbers or not all(phone_numbers):
             return Response(data={"message": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
         return func(*args, **kwargs)
 

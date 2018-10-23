@@ -34,7 +34,6 @@ class PhoneNumberModelTest(APITestCase):
         self.created_phone = PhoneNumber.objects.create(
             contact=self.created_contact,
             phone='+1 202 555 0104',
-            primary=True
         )
 
     def test_email_field(self):
@@ -43,7 +42,6 @@ class PhoneNumberModelTest(APITestCase):
         """
         self.assertEqual(self.created_contact, self.created_phone.contact)
         self.assertEqual('+1 202 555 0104', self.created_phone.phone)
-        self.assertEqual(True, self.created_phone.primary)
         self.assertEqual('+1 202 555 0104', str(self.created_phone))
 
 

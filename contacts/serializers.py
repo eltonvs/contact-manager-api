@@ -6,7 +6,7 @@ from contacts.models import Contact, PhoneNumber, EmailField, AddressField
 class PhoneNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhoneNumber
-        fields = ('phone', 'primary')
+        fields = ('phone',)
 
 
 class EmailFieldSerializer(serializers.ModelSerializer):
@@ -22,7 +22,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class ContactSerializer(serializers.ModelSerializer):
-    phone_numbers = PhoneNumberSerializer(many=True)
+    phone_numbers = serializers.SlugRelatedField(many=True, queryset=PhoneNumber.objects.all(), slug_field='phone')
     emails = serializers.SlugRelatedField(many=True, queryset=[], slug_field='email')
     addresses = AddressSerializer(many=True)
 

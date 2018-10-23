@@ -27,9 +27,7 @@ class BaseContactViewTest(APITestCase):
         if first_name != '' and last_name != '' and date_of_birth and phone_numbers and emails:
             contact = Contact.objects.create(first_name=first_name, last_name=last_name, date_of_birth=date_of_birth)
             for phone_number in phone_numbers:
-                BasePhoneNumbersViewTest.insert_phone_number(
-                    contact_id=contact.id, phone=phone_number['phone'], is_primary=phone_number.get('primary', False)
-                )
+                BasePhoneNumbersViewTest.insert_phone_number(contact_id=contact.id, phone=phone_number['phone'])
             for email in emails:
                 BaseEmailFieldViewTest.insert_email(contact_id=contact.id, email=email)
             for address in addresses:
@@ -72,57 +70,19 @@ class BaseContactViewTest(APITestCase):
         }
         self.address_with_empty_fields = {'address': '', 'city': '', 'state': '', 'country': '', 'zip_code': ''}
         self.valid_address_data = {'addresses': [self.valid_address]}
-        self.multiple_valid_address_data = {
-            'addresses': [{**self.valid_address, **{'city': 'Another City'}}, self.valid_address]
-        }
-        self.multiple_invalid_address_data = {
-            'addresses': [self.valid_address, self.address_with_empty_fields]
-        }
+        self.multiple_valid_address = [{**self.valid_address, **{'city': 'Another City'}}, self.valid_address]
+        self.multiple_valid_address_data = {'addresses': self.multiple_valid_address}
+        self.multiple_invalid_address_data = {'addresses': [self.valid_address, self.address_with_empty_fields]}
         self.invalid_address_data = {'addresses': [self.address_with_empty_fields]}
         self.address_data_with_empty_address = {'addresses': [{}]}
-        self.valid_phone = {'phone': '+1 202 555 0104', 'primary': True}
+        self.valid_phone = '+1 202 555 0104'
         self.valid_phone_data = {'phone_numbers': [self.valid_phone]}
-        self.valid_multiple_phone_data = {
-            'phone_numbers': [
-                {
-                    'phone': '+1 202 555 0104',
-                    'primary': True
-                },
-                {
-                    'phone': '+2 123 456 7890',
-                    'primary': False
-                },
-                {
-                    'phone': '+55 999 999 999',
-                    'primary': False
-                },
-            ]
-        }
+        self.valid_multiple_phone_data = {'phone_numbers': ['+1 202 555 0104', '+2 123 456 7890', '+55 999 999 999']}
         self.invalid_multiple_phone_data = {
-            'phone_numbers': [
-                {
-                    'phone': '+1 202 555 0104',
-                    'primary': True
-                },
-                {
-                    'phone': '+2 123 456 7890',
-                    'primary': False
-                },
-                {
-                    'phone': '+55 999 999 999',
-                    'primary': False
-                },
-                {
-                    'phone': ''
-                }
-            ]
+            'phone_numbers': ['+1 202 555 0104', '+2 123 456 7890', '+55 999 999 999', '']
         }
-        self.empty_phone_data = {
-            'phone_numbers': []
-        }
-        self.phone_data_with_empty_phone = {
-            'phone_numbers': [{'phone': ''}]
-        }
+        self.empty_phone_data = {'phone_numbers': []}
+        self.phone_data_with_empty_phone = {'phone_numbers': ['']}
 
     def create_contact(self, data):
         """

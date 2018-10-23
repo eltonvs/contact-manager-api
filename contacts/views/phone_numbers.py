@@ -20,11 +20,7 @@ class ListPhoneNumbersView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         try:
             requested_contact = Contact.objects.get(pk=kwargs['contact_id'])
-            inserted_phone = PhoneNumber.objects.create(
-                contact=requested_contact,
-                phone=request.data['phone'],
-                primary=request.data.get('primary', False)
-            )
+            inserted_phone = PhoneNumber.objects.create(contact=requested_contact, phone=request.data['phone'])
             return Response(self.serializer_class(inserted_phone).data, status=status.HTTP_201_CREATED)
         except Contact.DoesNotExist:
             return Response(data={'message': 'The requested contact does not exist'}, status=status.HTTP_404_NOT_FOUND)

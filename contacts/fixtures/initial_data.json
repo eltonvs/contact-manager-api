@@ -31,8 +31,7 @@
     "pk": 1,
     "fields": {
       "contact": 1,
-      "phone": "+44 7911 123456",
-      "primary": true
+      "phone": "+44 7911 123456"
     }
   },
   {
@@ -40,8 +39,7 @@
     "pk": 2,
     "fields": {
       "contact": 2,
-      "phone": "+1 123 456 7890",
-      "primary": true
+      "phone": "+1 123 456 7890"
     }
   },
   {
@@ -49,8 +47,7 @@
     "pk": 3,
     "fields": {
       "contact": 3,
-      "phone": "+1 000 111 2222",
-      "primary": true
+      "phone": "+1 000 111 2222"
     }
   },
   {
@@ -58,8 +55,7 @@
     "pk": 4,
     "fields": {
       "contact": 3,
-      "phone": "+1 321 654 0987",
-      "primary": false
+      "phone": "+1 321 654 0987"
     }
   },
   {

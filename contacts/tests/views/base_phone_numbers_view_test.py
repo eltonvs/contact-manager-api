@@ -10,15 +10,14 @@ class BasePhoneNumbersViewTest(APITestCase):
     fixtures = ['initial_data.json']
 
     @staticmethod
-    def insert_phone_number(contact_id, phone, is_primary=False):
+    def insert_phone_number(contact_id, phone):
         """
         Add a phone number to a contact
         :param contact_id:
         :param phone:
-        :param is_primary:
         """
         if contact_id and phone:
-            PhoneNumber.objects.create(contact_id=contact_id, phone=phone, primary=is_primary)
+            PhoneNumber.objects.create(contact_id=contact_id, phone=phone)
 
     def setUp(self):
         # Default Values
@@ -27,14 +26,12 @@ class BasePhoneNumbersViewTest(APITestCase):
         self.nonexistent_contact_id = 42
         self.current_version = 'v1'
         # Default tests data
-        self.valid_phone_number_data = {
-            'phone': '+1 202 555 0104',
-            'primary': True
-        }
+        self.valid_phone_number = '+1 202 555 0104'
+        self.nonexistent_phone_number = '+99 9999 9999'
+        self.valid_phone_number_data = {'phone': self.valid_phone_number}
+        self.empty_phone_number = ''
         self.empty_phone_number_data = {}
         self.invalid_phone_number_data = {'phone': ''}
-        self.valid_phone_number = '+55 999 999 999'
-        self.nonexistent_phone_number = '+99 9999 9999'
 
     def add_phone_number(self, contact_id, data):
         """
