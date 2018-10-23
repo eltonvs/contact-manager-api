@@ -88,10 +88,10 @@ class CreateContactTest(BaseContactViewTest):
 
     def test_create_a_contact_with_invalid_multiple_phones(self):
         """
-        This test ensures that a single contact can be created
+        This test ensures that a single contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.invalid_multiple_phone_data}
+        contact_data = {**self.valid_contact_data, **self.invalid_multiple_phone_data, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
@@ -99,20 +99,21 @@ class CreateContactTest(BaseContactViewTest):
 
     def test_create_a_contact_without_a_phone(self):
         """
-        This test ensures that a single contact can be created
+        This test ensures that a single contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        response = self.create_contact(self.valid_contact_data)
+        contact_data = {**self.valid_contact_data, **self.valid_email_data}
+        response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_an_empty_list_of_phones(self):
         """
-        This test ensures that a single contact can be created
+        This test ensures that a single contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.empty_phone_data}
+        contact_data = {**self.valid_contact_data, **self.empty_phone_data, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
@@ -120,10 +121,10 @@ class CreateContactTest(BaseContactViewTest):
 
     def test_create_a_contact_with_an_empty_phone(self):
         """
-        This test ensures that a single contact can be created
+        This test ensures that a single contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.phone_data_with_empty_phone}
+        contact_data = {**self.valid_contact_data, **self.phone_data_with_empty_phone, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
@@ -134,7 +135,8 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that an empty contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        response = self.create_contact(self.empty_contact_data)
+        contact_data = {**self.empty_contact_data, **self.valid_email_data}
+        response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -155,7 +157,96 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that an empty contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.empty_contact_data, **self.valid_phone_data}
+        contact_data = {**self.empty_contact_data, **self.valid_phone_data, **self.valid_email_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_with_multiple_emails(self):
+        """
+        This test ensures that a single contact can be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_multiple_phone_data, **self.valid_email_data}
+        response = self.create_contact(contact_data)
+
+        self.assertEqual(response.json(), contact_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_a_contact_with_invalid_multiple_emails(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.invalid_multiple_email_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue('email' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_without_an_email(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_with_an_empty_list_of_emails(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.empty_email_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_a_contact_with_an_empty_email(self):
+        """
+        This test ensures that a single contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.email_data_with_empty_email}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_an_empty_contact_without_an_email(self):
+        """
+        This test ensures that an empty contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_an_empty_contact_with_an_empty_email(self):
+        """
+        This test ensures that an empty contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.valid_contact_data, **self.empty_email_data}
+        response = self.create_contact(contact_data)
+
+        self.assertTrue('required' in response.data['message'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_an_empty_contact_with_a_valid_email(self):
+        """
+        This test ensures that an empty contact cannot be created
+        """
+        # Use the API endpoint to create a new contact
+        contact_data = {**self.empty_contact_data, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertTrue('required' in response.data['message'])
