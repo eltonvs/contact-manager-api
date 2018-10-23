@@ -3,6 +3,8 @@ from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.response import Response
 
+from contacts.validators import validate_address_dict
+
 
 def validate_contact_data(func):
     def decorated(*args, **kwargs):
@@ -45,6 +47,19 @@ def validate_emails_data(func):
     return decorated
 
 
+def validate_address_data(func):
+    def decorated(*args, **kwargs):
+        addresses = args[0].request.data.get('addresses', [])
+
+        try:
+            [validate_address_dict(address) for address in addresses]
+            return func(*args, **kwargs)
+        except ValidationError:
+            return Response(data={'message', 'All addresses must be valid'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return decorated
+
+
 def validate_phone_number(func):
     def decorated(*args, **kwargs):
         phone = args[0].request.data.get('phone', '')
@@ -68,5 +83,21 @@ def validate_flat_email_data(func):
             return func(*args, **kwargs)
         except ValidationError:
             return Response(data={'message': 'The email must be valid'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return decorated
+
+
+def validate_flat_address_data(func):
+    def decorated(*args, **kwargs):
+        address = args[0].request.data.get('address', '')
+        city = args[0].request.data.get('city', '')
+        state = args[0].request.data.get('state', '')
+        country = args[0].request.data.get('country', '')
+        zip_code = args[0].request.data.get('zip_code', '')
+
+        if not all([address, city, state, country, zip_code]):
+            return Response(data={'message': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return func(*args, **kwargs)
 
     return decorated
