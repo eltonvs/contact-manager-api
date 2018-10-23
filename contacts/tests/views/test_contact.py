@@ -69,7 +69,7 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that a single contact can be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.valid_phone_data}
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertEqual(response.json(), contact_data)
@@ -80,7 +80,7 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that a single contact can be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.valid_multiple_phone_data}
+        contact_data = {**self.valid_contact_data, **self.valid_multiple_phone_data, **self.valid_email_data}
         response = self.create_contact(contact_data)
 
         self.assertEqual(response.json(), contact_data)
@@ -169,7 +169,8 @@ class UpdateContactTest(BaseContactViewTest):
         """
         # Use the API endpoint to update a contact
         contact_phones = {'phone_numbers': [{'phone': '+1 123 456 7890', 'primary': True}]}
-        contact_data = {**self.valid_contact_data, **contact_phones}
+        contact_emails = {'emails': ['elvis_presley@example.com']}
+        contact_data = {**self.valid_contact_data, **contact_phones, **contact_emails}
         response = self.update_contact(contact_id=2, new_data=self.valid_contact_data)
 
         self.assertEqual(response.json(), contact_data)
