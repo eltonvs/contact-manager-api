@@ -1,8 +1,10 @@
+from django.db import transaction, IntegrityError
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from contacts.decorators import validate_contact_data, validate_phone_number_data, validate_emails_data
-from contacts.models import Contact, PhoneNumber, EmailField
+from contacts.decorators import validate_contact_data, validate_phone_number_data, validate_emails_data, \
+    validate_address_data
+from contacts.models import Contact, PhoneNumber, EmailField, AddressField
 from contacts.serializers import ContactSerializer
 
 
@@ -16,21 +18,38 @@ class ListContactsView(generics.ListCreateAPIView):
     @validate_contact_data
     @validate_phone_number_data
     @validate_emails_data
+    @validate_address_data
     def post(self, request, *args, **kwargs):
-        created_contact = Contact.objects.create(
-            first_name=request.data['first_name'],
-            last_name=request.data['last_name'],
-            date_of_birth=request.data['date_of_birth']
-        )
-        for phone_number in request.data['phone_numbers']:
-            PhoneNumber.objects.create(
-                contact=created_contact,
-                phone=phone_number['phone'],
-                primary=phone_number.get('primary', False)
+        try:
+            with transaction.atomic():
+                created_contact = Contact.objects.create(
+                    first_name=request.data['first_name'],
+                    last_name=request.data['last_name'],
+                    date_of_birth=request.data['date_of_birth']
+                )
+                for phone_number in request.data['phone_numbers']:
+                    PhoneNumber.objects.create(
+                        contact=created_contact,
+                        phone=phone_number['phone'],
+                        primary=phone_number.get('primary', False)
+                    )
+                for email in request.data['emails']:
+                    EmailField.objects.create(contact=created_contact, email=email)
+                for address in request.data['addresses']:
+                    AddressField.objects.create(
+                        contact=created_contact,
+                        address=address['address'],
+                        city=address['city'],
+                        state=address['state'],
+                        country=address['country'],
+                        zip_code=address['zip_code']
+                    )
+                return Response(data=self.serializer_class(created_contact).data, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response(
+                data={'message': 'The contact is not valid. There are attributes with duplicated values'},
+                status=status.HTTP_409_CONFLICT
             )
-        for email in request.data['emails']:
-            EmailField.objects.create(contact=created_contact, email=email)
-        return Response(data=self.serializer_class(created_contact).data, status=status.HTTP_201_CREATED)
 
 
 class ContactDetailsView(generics.RetrieveUpdateDestroyAPIView):
