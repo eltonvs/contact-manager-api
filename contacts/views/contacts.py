@@ -28,11 +28,7 @@ class ListContactsView(generics.ListCreateAPIView):
                     date_of_birth=request.data['date_of_birth']
                 )
                 for phone_number in request.data['phone_numbers']:
-                    PhoneNumber.objects.create(
-                        contact=created_contact,
-                        phone=phone_number['phone'],
-                        primary=phone_number.get('primary', False)
-                    )
+                    PhoneNumber.objects.create(contact=created_contact, phone=phone_number)
                 for email in request.data['emails']:
                     EmailField.objects.create(contact=created_contact, email=email)
                 for address in request.data['addresses']:
