@@ -44,7 +44,7 @@ class GetAnAddressTest(BaseAddressFieldViewTest):
         # Retrieve response from API
         response = self.fetch_address(self.valid_contact_id, self.nonexistent_address_id)
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_an_address_from_a_nonexistent_contact(self):
@@ -54,7 +54,7 @@ class GetAnAddressTest(BaseAddressFieldViewTest):
         # Retrieve response from API
         response = self.fetch_address(self.nonexistent_contact_id, self.valid_contact_address_id)
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -96,7 +96,7 @@ class AddAnAddressToAContactTest(BaseAddressFieldViewTest):
         # Use the API endpoint to add an address to a contact
         response = self.add_address(self.nonexistent_contact_id, self.valid_address)
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -158,7 +158,7 @@ class UpdateAnAddressFromAContactTest(BaseAddressFieldViewTest):
             new_data=self.valid_address
         )
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_nonexistent_address_from_a_contact(self):
@@ -172,7 +172,7 @@ class UpdateAnAddressFromAContactTest(BaseAddressFieldViewTest):
             new_data=self.valid_address
         )
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -205,7 +205,7 @@ class RemoveAnAddressFromAContactTest(BaseAddressFieldViewTest):
             address_id=self.nonexistent_address_id
         )
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_an_address_from_a_nonexistent_contact(self):
@@ -218,5 +218,5 @@ class RemoveAnAddressFromAContactTest(BaseAddressFieldViewTest):
             address_id=self.valid_contact_address_id
         )
 
-        self.assertTrue('not found', response.data['detail'].lower())
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
