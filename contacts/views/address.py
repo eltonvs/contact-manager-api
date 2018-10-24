@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from contacts.models import Contact, AddressField
@@ -24,8 +25,8 @@ class ListAddressesView(generics.ListCreateAPIView):
         try:
             serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except IntegrityError:
-            return Response(data={'address': ['This field is already registered']}, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as err:
+            raise ValidationError({'address': ['This field is already registered']}) from err
 
 
 class AddressDetailsView(generics.RetrieveUpdateDestroyAPIView):
@@ -44,9 +45,8 @@ class AddressDetailsView(generics.RetrieveUpdateDestroyAPIView):
         try:
             serializer.save()
             return Response(serializer.data)
-        except IntegrityError:
-            return Response(data={'address': ['This address is already registered']},
-                            status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as err:
+            raise ValidationError({'address': ['This field is already registered']}) from err
 
     def delete(self, request, *args, **kwargs):
         requested_address = get_object_or_404(AddressField, contact_id=kwargs['contact_id'], pk=kwargs['address_id'])

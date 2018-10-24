@@ -19,7 +19,7 @@ class GetAllContactsTest(BaseContactViewTest):
         expected = Contact.objects.all()
         serialized = ContactSerializer(expected, many=True)
 
-        self.assertEqual(response.data, serialized.data)
+        self.assertEqual(response.json(), serialized.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
@@ -59,7 +59,7 @@ class GetAContactTest(BaseContactViewTest):
         # Retrieve response from API
         response = self.fetch_contact(self.invalid_contact_id)
 
-        self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -72,8 +72,10 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_a_contact_with_an_address(self):
@@ -84,8 +86,11 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
                         **self.valid_address_data}
         response = self.create_contact(contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertNotEqual(json_response['addresses'][0].pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_a_contact_with_multiple_addresses(self):
@@ -96,8 +101,13 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_email_data,
                         **self.multiple_valid_address_data}
         response = self.create_contact(contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        for address in json_response['addresses']:
+            self.assertNotEqual(address.pop('id'), 0)
+
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_a_contact_with_invalid_multiple_addresses(self):
@@ -109,8 +119,7 @@ class CreateContactTest(BaseContactViewTest):
                         **self.multiple_invalid_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('address' in response.data['message'])
+        self.assertTrue(len(response.data['addresses']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_multiple_phones(self):
@@ -121,8 +130,10 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_multiple_phone_data, **self.valid_email_data,
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_a_contact_with_an_invalid_address(self):
@@ -134,8 +145,12 @@ class CreateContactTest(BaseContactViewTest):
                         **self.invalid_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('address' in response.data['message'])
+        self.assertTrue(len(response.data['addresses']) > 0)
+        self.assertTrue(len(response.data['addresses'][0]['address']) > 0)
+        self.assertTrue(len(response.data['addresses'][0]['city']) > 0)
+        self.assertTrue(len(response.data['addresses'][0]['state']) > 0)
+        self.assertTrue(len(response.data['addresses'][0]['country']) > 0)
+        self.assertTrue(len(response.data['addresses'][0]['zip_code']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_duplicated_addresses(self):
@@ -148,9 +163,8 @@ class CreateContactTest(BaseContactViewTest):
                         **contact_addresses}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('duplicated' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['addresses']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_invalid_multiple_phones(self):
         """
@@ -161,7 +175,7 @@ class CreateContactTest(BaseContactViewTest):
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone_numbers']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_duplicated_phones(self):
@@ -173,9 +187,8 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **contact_phones, **self.valid_email_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('duplicated' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['phone']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_without_a_phone(self):
         """
@@ -185,7 +198,7 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_email_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone_numbers']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_an_empty_list_of_phones(self):
@@ -197,7 +210,7 @@ class CreateContactTest(BaseContactViewTest):
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone_numbers']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_an_empty_phone(self):
@@ -209,7 +222,7 @@ class CreateContactTest(BaseContactViewTest):
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone_numbers']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_without_phone(self):
@@ -220,7 +233,9 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.empty_contact_data, **self.valid_email_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_with_an_empty_phone(self):
@@ -228,10 +243,12 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that an empty contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.empty_phone_data, **self.empty_address_data}
+        contact_data = {**self.empty_contact_data, **self.empty_phone_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_with_a_valid_phone(self):
@@ -243,7 +260,9 @@ class CreateContactTest(BaseContactViewTest):
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_multiple_emails(self):
@@ -251,11 +270,13 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that a single contact can be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.valid_multiple_phone_data, **self.valid_email_data,
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.valid_multiple_email_data,
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_a_contact_with_duplicated_emails(self):
@@ -267,9 +288,8 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **contact_emails, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('duplicated' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['email']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_invalid_multiple_emails(self):
         """
@@ -280,8 +300,7 @@ class CreateContactTest(BaseContactViewTest):
                         **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue(len(response.data['emails']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_without_an_email(self):
@@ -292,7 +311,7 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['emails']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_an_empty_list_of_emails(self):
@@ -300,10 +319,11 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that a single contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.empty_email_data, **self.empty_address_data}
+        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.empty_email_data,
+                        **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['emails']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_a_contact_with_an_empty_email(self):
@@ -314,7 +334,7 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.valid_contact_data, **self.email_data_with_empty_email, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['emails']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_without_an_email(self):
@@ -322,10 +342,12 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that an empty contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.valid_phone_data, **self.empty_address_data}
+        contact_data = {**self.empty_contact_data, **self.valid_phone_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_with_an_empty_email(self):
@@ -333,10 +355,12 @@ class CreateContactTest(BaseContactViewTest):
         This test ensures that an empty contact cannot be created
         """
         # Use the API endpoint to create a new contact
-        contact_data = {**self.valid_contact_data, **self.empty_email_data, **self.empty_address_data}
+        contact_data = {**self.empty_contact_data, **self.empty_email_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_an_empty_contact_with_a_valid_email(self):
@@ -347,7 +371,9 @@ class CreateContactTest(BaseContactViewTest):
         contact_data = {**self.empty_contact_data, **self.valid_email_data, **self.empty_address_data}
         response = self.create_contact(contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -365,8 +391,13 @@ class UpdateContactTest(BaseContactViewTest):
         }
         contact_data = {**self.valid_contact_data, **contact_phones, **contact_emails, **contact_addresses}
         response = self.update_contact(contact_id=2, new_data=self.valid_contact_data)
+        json_response = response.json()
 
-        self.assertEqual(response.json(), contact_data)
+        for address in json_response['addresses']:
+            self.assertNotEqual(address.pop('id'), 0)
+
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, contact_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_an_nonexistent_contact(self):
@@ -376,7 +407,7 @@ class UpdateContactTest(BaseContactViewTest):
         # Use the API endpoint to update a contact
         response = self.update_contact(contact_id=self.invalid_contact_id, new_data=self.valid_contact_data)
 
-        self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_contact_with_empty_values(self):
@@ -386,7 +417,9 @@ class UpdateContactTest(BaseContactViewTest):
         # Use the API endpoint to update a contact
         response = self.update_contact(contact_id=2, new_data=self.empty_contact_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['first_name']) > 0)
+        self.assertTrue(len(response.data['last_name']) > 0)
+        self.assertTrue(len(response.data['date_of_birth']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -411,4 +444,6 @@ class RemoveContactTest(BaseContactViewTest):
         """
         # Use the API endpoint to remove a contact
         response = self.remove_contact(self.invalid_contact_id)
+
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
