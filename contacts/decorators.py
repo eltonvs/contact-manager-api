@@ -68,30 +68,3 @@ def validate_phone_number(func):
         return func(*args, **kwargs)
 
     return decorated
-
-
-def validate_flat_email_data(func):
-    def decorated(*args, **kwargs):
-        email = args[0].request.data.get('email', '')
-
-        if not email:
-            return Response(data={'message': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            validate_email(email)
-            return func(*args, **kwargs)
-        except ValidationError:
-            return Response(data={'message': 'The email must be valid'}, status=status.HTTP_400_BAD_REQUEST)
-
-    return decorated
-
-
-def validate_flat_address_data(func):
-    def decorated(*args, **kwargs):
-        try:
-            validate_address_dict(args[0].request.data)
-            return func(*args, **kwargs)
-        except ValidationError:
-            return Response(data={'message': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-    return decorated
