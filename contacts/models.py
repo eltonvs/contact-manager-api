@@ -12,10 +12,7 @@ class Contact(models.Model):
 
 class PhoneNumber(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='phone_numbers')
-    phone = models.CharField(max_length=100, blank=False, null=False)
-
-    class Meta:
-        unique_together = ('contact', 'phone'),
+    phone = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.phone

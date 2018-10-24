@@ -1,4 +1,3 @@
-from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -21,11 +20,8 @@ class ListPhoneNumbersView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         requested_contact = get_object_or_404(Contact, pk=kwargs['contact_id'])
-        try:
-            serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except IntegrityError:
-            return Response(data={'phone': ['This phone is already registered']}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class PhoneNumbersDetailsView(generics.RetrieveUpdateDestroyAPIView):
@@ -40,11 +36,8 @@ class PhoneNumbersDetailsView(generics.RetrieveUpdateDestroyAPIView):
 
         serializer = self.serializer_class(original_phone, data=request.data)
         serializer.is_valid(raise_exception=True)
-        try:
-            serializer.save()
-            return Response(serializer.data)
-        except IntegrityError:
-            return Response(data={'phone': ['This phone is already registered']}, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(serializer.data)
 
     def delete(self, request, *args, **kwargs):
         requested_contact = get_object_or_404(Contact, pk=kwargs['contact_id'])
