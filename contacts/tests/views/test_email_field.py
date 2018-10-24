@@ -44,8 +44,7 @@ class GetAEmailTest(BaseEmailFieldViewTest):
         # Retrieve response from API
         response = self.fetch_email(self.valid_contact_id, self.nonexistent_email)
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_a_email_from_a_nonexistent_contact(self):
@@ -55,8 +54,7 @@ class GetAEmailTest(BaseEmailFieldViewTest):
         # Retrieve response from API
         response = self.fetch_email(self.nonexistent_contact_id, self.valid_email)
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -79,8 +77,8 @@ class AddAEmailToAContactTest(BaseEmailFieldViewTest):
         email_data = {'email': self.valid_contact_email}
         response = self.add_email(self.valid_contact_id, email_data)
 
-        self.assertTrue('already registered' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['email']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_an_empty_email_to_a_contact(self):
         """
@@ -89,7 +87,7 @@ class AddAEmailToAContactTest(BaseEmailFieldViewTest):
         # Use the API endpoint to add a email to a contact
         response = self.add_email(self.valid_contact_id, self.empty_email_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['email']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_an_invalid_email_to_a_contact(self):
@@ -99,7 +97,7 @@ class AddAEmailToAContactTest(BaseEmailFieldViewTest):
         # Use the API endpoint to add a email to a contact
         response = self.add_email(self.valid_contact_id, self.invalid_email_data)
 
-        self.assertTrue('valid' in response.data['message'])
+        self.assertTrue(len(response.data['email']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_a_email_to_a_nonexistent_contact(self):
@@ -109,7 +107,7 @@ class AddAEmailToAContactTest(BaseEmailFieldViewTest):
         # Use the API endpoint to add a email to a contact
         response = self.add_email(self.nonexistent_contact_id, self.valid_email_data)
 
-        self.assertTrue('not exist' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -140,8 +138,8 @@ class UpdateAEmailFromAContactTest(BaseEmailFieldViewTest):
             new_data=self.valid_email_data
         )
 
-        self.assertTrue('already registered' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['email']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_email_with_empty_values(self):
         """
@@ -154,7 +152,7 @@ class UpdateAEmailFromAContactTest(BaseEmailFieldViewTest):
             new_data=self.empty_email_data
         )
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['email']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_email_with_invalid_values(self):
@@ -168,8 +166,7 @@ class UpdateAEmailFromAContactTest(BaseEmailFieldViewTest):
             new_data=self.invalid_email_data
         )
 
-        self.assertTrue('valid' in response.data['message'])
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue(len(response.data['email']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_email_from_a_nonexistent_contact(self):
@@ -183,8 +180,7 @@ class UpdateAEmailFromAContactTest(BaseEmailFieldViewTest):
             new_data=self.valid_email_data
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_nonexistent_email_from_a_contact(self):
@@ -198,8 +194,7 @@ class UpdateAEmailFromAContactTest(BaseEmailFieldViewTest):
             new_data=self.valid_email_data
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -230,7 +225,7 @@ class RemoveAEmailFromAContactTest(BaseEmailFieldViewTest):
         email = EmailField.objects.get(contact_id=2, email=contact_email)
 
         self.assertEqual(email.email, contact_email)
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue(len(response.data['email']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_remove_a_nonexistent_email(self):
@@ -243,8 +238,7 @@ class RemoveAEmailFromAContactTest(BaseEmailFieldViewTest):
             email=self.nonexistent_email
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('email' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_a_email_from_a_nonexistent_contact(self):
@@ -257,6 +251,5 @@ class RemoveAEmailFromAContactTest(BaseEmailFieldViewTest):
             email=self.valid_email
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found', response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
