@@ -44,8 +44,7 @@ class GetAPhoneNumberTest(BasePhoneNumbersViewTest):
         # Retrieve response from API
         response = self.fetch_phone_number(self.valid_contact_id, self.nonexistent_phone_number)
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('phone' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_a_phone_number_from_a_nonexistent_contact(self):
@@ -55,8 +54,7 @@ class GetAPhoneNumberTest(BasePhoneNumbersViewTest):
         # Retrieve response from API
         response = self.fetch_phone_number(self.nonexistent_contact_id, self.valid_phone_number)
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -79,9 +77,8 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         phone_number_data = {'phone': self.valid_contact_phone_number}
         response = self.add_phone_number(self.valid_contact_id, phone_number_data)
 
-        self.assertTrue('already registered' in response.data['message'])
-        self.assertTrue('phone' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['phone']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_an_empty_phone_number_to_a_contact(self):
         """
@@ -90,7 +87,7 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         # Use the API endpoint to add a phone number to a contact
         response = self.add_phone_number(self.valid_contact_id, self.empty_phone_number_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_an_invalid_phone_number_to_a_contact(self):
@@ -100,7 +97,7 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         # Use the API endpoint to add a phone number to a contact
         response = self.add_phone_number(self.valid_contact_id, self.invalid_phone_number_data)
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_add_a_phone_number_to_a_nonexistent_contact(self):
@@ -110,8 +107,7 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         # Use the API endpoint to add a phone number to a contact
         response = self.add_phone_number(self.nonexistent_contact_id, self.valid_phone_number_data)
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -142,9 +138,8 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             new_data=self.valid_phone_number_data
         )
 
-        self.assertTrue('already registered' in response.data['message'])
-        self.assertTrue('phone' in response.data['message'])
-        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertTrue(len(response.data['phone']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_phone_number_with_empty_values(self):
         """
@@ -157,7 +152,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             new_data=self.empty_phone_number_data
         )
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_phone_number_with_invalid_values(self):
@@ -171,7 +166,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             new_data=self.invalid_phone_number_data
         )
 
-        self.assertTrue('required' in response.data['message'])
+        self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_a_phone_number_from_a_nonexistent_contact(self):
@@ -185,8 +180,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             new_data=self.valid_phone_number_data
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_a_nonexistent_phone_number_from_a_contact(self):
@@ -200,8 +194,7 @@ class UpdateAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             new_data=self.valid_phone_number_data
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('phone' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
@@ -235,7 +228,7 @@ class RemoveAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
         phone_number = PhoneNumber.objects.get(contact_id=self.valid_contact_id, phone=self.valid_contact_phone_number)
 
         self.assertEqual(phone_number.phone, self.valid_contact_phone_number)
-        self.assertTrue('phone' in response.data['message'])
+        self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_remove_a_nonexistent_phone_number(self):
@@ -248,8 +241,7 @@ class RemoveAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             phone_number=self.nonexistent_phone_number
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('phone' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_remove_a_phone_number_from_a_nonexistent_contact(self):
@@ -262,6 +254,5 @@ class RemoveAPhoneNumberFromAContactTest(BasePhoneNumbersViewTest):
             phone_number=self.valid_phone_number
         )
 
-        self.assertTrue('not exist' in response.data['message'])
-        self.assertTrue('contact' in response.data['message'])
+        self.assertTrue('not found' in response.data['detail'].lower())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
