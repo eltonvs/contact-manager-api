@@ -22,8 +22,8 @@ class ListAddressesView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            inserted_address = AddressField.objects.create(contact=requested_contact, **serializer.validated_data)
-            return Response(self.serializer_class(inserted_address).data, status=status.HTTP_201_CREATED)
+            serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response(data={'address': ['This field is already registered']}, status=status.HTTP_400_BAD_REQUEST)
 

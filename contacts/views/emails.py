@@ -20,8 +20,8 @@ class ListEmailsView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         requested_contact = get_object_or_404(Contact, pk=kwargs['contact_id'])
-        inserted_email = EmailField.objects.create(contact=requested_contact, **serializer.validated_data)
-        return Response(self.serializer_class(inserted_email).data, status=status.HTTP_201_CREATED)
+        serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class EmailDetailsView(generics.RetrieveUpdateDestroyAPIView):

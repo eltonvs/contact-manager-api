@@ -22,8 +22,8 @@ class ListPhoneNumbersView(generics.ListCreateAPIView):
 
         requested_contact = get_object_or_404(Contact, pk=kwargs['contact_id'])
         try:
-            inserted_phone = PhoneNumber.objects.create(contact=requested_contact, **serializer.validated_data)
-            return Response(self.serializer_class(inserted_phone).data, status=status.HTTP_201_CREATED)
+            serializer.create({**serializer.validated_data, **{'contact': requested_contact}})
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response(data={'phone': ['This phone is already registered']}, status=status.HTTP_400_BAD_REQUEST)
 
