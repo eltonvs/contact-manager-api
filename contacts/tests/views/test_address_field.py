@@ -112,7 +112,9 @@ class UpdateAnAddressFromAContactTest(BaseAddressFieldViewTest):
             new_data=self.valid_address
         )
 
-        self.assertEqual(response.json(), self.valid_address)
+        json_response = response.json()
+        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertEqual(json_response, self.valid_address)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_an_address_from_a_contact_with_a_duplicated_value(self):
