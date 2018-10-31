@@ -65,7 +65,9 @@ class AddAnAddressToAContactTest(BaseAddressFieldViewTest):
         """
         # Use the API endpoint to add an address to a contact
         response = self.add_address(self.valid_contact_id, self.valid_address)
+        json_response = response.json()
 
+        self.assertNotEqual(json_response.pop('id', 0), 0)
         self.assertEqual(response.json(), self.valid_address)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -113,7 +115,7 @@ class UpdateAnAddressFromAContactTest(BaseAddressFieldViewTest):
         )
 
         json_response = response.json()
-        self.assertNotEqual(json_response.pop('id'), 0)
+        self.assertNotEqual(json_response.pop('id', 0), 0)
         self.assertEqual(json_response, self.valid_address)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
