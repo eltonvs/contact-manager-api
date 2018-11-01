@@ -28,7 +28,7 @@ class ListContactsView(generics.ListCreateAPIView):
     """
     Provides a GET and POST method handler
     """
-    queryset = Contact.objects.all()
+    queryset = Contact.objects.all().order_by('first_name', 'last_name')
     serializer_class = ContactSerializer
 
     @transaction.atomic
