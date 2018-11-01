@@ -1,9 +1,27 @@
 from django.db import transaction
 from rest_framework import generics, status
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from contacts.models import Contact
 from contacts.serializers import ContactSerializer, ContactNestedSerializer
+
+
+class SearchContactsView(generics.ListAPIView):
+    serializer_class = ContactSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get('query', '')
+        by_first_name = Contact.objects.filter(first_name__icontains=query)
+        by_last_name = Contact.objects.filter(last_name__icontains=query)
+        by_email = Contact.objects.filter(emails__email__icontains=query)
+        by_phone = Contact.objects.filter(phone_numbers__phone__icontains=query)
+        queryset = by_first_name | by_last_name | by_email | by_phone
+
+        if queryset:
+            return queryset.order_by('first_name', 'last_name').distinct()
+        else:
+            raise NotFound()
 
 
 class ListContactsView(generics.ListCreateAPIView):
