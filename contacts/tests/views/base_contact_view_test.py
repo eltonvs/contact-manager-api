@@ -1,4 +1,5 @@
 import json
+from django.utils.http import urlencode
 from rest_framework.reverse import reverse
 
 from rest_framework.test import APITestCase, APIClient
@@ -118,6 +119,17 @@ class BaseContactViewTest(APITestCase):
         return self.client.get(
             reverse('contact-details', kwargs={'version': self.current_version, 'contact_id': contact_id})
         )
+
+    def search_contacts(self, query):
+        """
+        Perform a GET request to search for contacts that match a given query
+        :param query:
+        :return:
+        """
+        url = "{}?{}".format(
+            reverse('contacts-search', kwargs={'version': self.current_version}), urlencode({'query': query})
+        )
+        return self.client.get(url)
 
     def remove_contact(self, contact_id):
         """
