@@ -23,6 +23,100 @@ class GetAllContactsTest(BaseContactViewTest):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class SearchContactsTest(BaseContactViewTest):
+    def test_search_by_first_name(self):
+        """
+        This ensures that all contacts with a defined first name will be
+        returned when a query with a part of his first name is sent in a
+        GET request to contacts/search endpoint
+        """
+        # Retrieve response from API
+        query = 'elton'
+        response = self.search_contacts(query)
+
+        # Fetch data from database
+        expected = Contact.objects.filter(first_name__icontains=query)
+        serialized = ContactSerializer(expected, many=True)
+
+        response_ids = map(lambda c: c.get('id'), response.data)
+        expected_ids = map(lambda c: c.get('id'), serialized.data)
+
+        self.assertTrue(all([expected_id in response_ids for expected_id in expected_ids]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_by_last_name(self):
+        """
+        This ensures that all contacts with a defined last name will be
+        returned when a query with a part of his last name is sent in a
+        GET request to contacts/search endpoint
+        """
+        # Retrieve response from API
+        query = 'john'
+        response = self.search_contacts(query)
+
+        # Fetch data from database
+        expected = Contact.objects.filter(last_name__icontains=query)
+        serialized = ContactSerializer(expected, many=True)
+
+        response_ids = map(lambda c: c.get('id'), response.data)
+        expected_ids = map(lambda c: c.get('id'), serialized.data)
+
+        self.assertTrue(all([expected_id in response_ids for expected_id in expected_ids]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_by_phone(self):
+        """
+        This ensures that all contacts with a defined phone number will be
+        returned when a query with a part of his phone number is sent in a
+        GET request to contacts/search endpoint
+        """
+        # Retrieve response from API
+        query = '123'
+        response = self.search_contacts(query)
+
+        # Fetch data from database
+        expected = Contact.objects.filter(phone_numbers__phone__icontains=query)
+        serialized = ContactSerializer(expected, many=True)
+
+        response_ids = map(lambda c: c.get('id'), response.data)
+        expected_ids = map(lambda c: c.get('id'), serialized.data)
+
+        self.assertTrue(all([expected_id in response_ids for expected_id in expected_ids]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_by_email(self):
+        """
+        This ensures that all contacts with a defined email will be
+        returned when a query with a part of his email is sent in a
+        GET request to contacts/search endpoint
+        """
+        # Retrieve response from API
+        query = '@example.com'
+        response = self.search_contacts(query)
+
+        # Fetch data from database
+        expected = Contact.objects.filter(emails__email__icontains=query)
+        serialized = ContactSerializer(expected, many=True)
+
+        response_ids = map(lambda c: c.get('id'), response.data)
+        expected_ids = map(lambda c: c.get('id'), serialized.data)
+
+        self.assertTrue(all([expected_id in response_ids for expected_id in expected_ids]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_nonexistent_contact(self):
+        """
+        This ensures that all contacts with a defined phone number will be
+        returned when a query with a part of his phone number is sent in a
+        GET request to contacts/search endpoint
+        """
+        # Retrieve response from API
+        query = 'anonymous'
+        response = self.search_contacts(query)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
 class GetAContactTest(BaseContactViewTest):
     def test_get_a_contact(self):
         """
