@@ -8,6 +8,7 @@ django = "*"
 djangorestframework = "*"
 coverage = "*"
 django-cors-headers = "*"
+django-rest-swagger = "*"
 
 [dev-packages]
 
