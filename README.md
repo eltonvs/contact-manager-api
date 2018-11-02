@@ -10,7 +10,7 @@ Test-driven development *(TDD)* was used as one of the main development techniqu
 
 ### Endpoints
 
-This API in on version `v1`, so his base url is `http://host:port/contactmanager/v1`.
+This API in on version `v1`, so its base url is `http://host:port/contactmanager/v1`.
 
 | URL | Method | Description |
 | :-- | :----: | :---------- |
