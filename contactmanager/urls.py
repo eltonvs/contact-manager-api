@@ -15,8 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include
+from django.conf.urls import url
+from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
+    url('docs/', get_swagger_view(title='Contact Manager API')),
     path('admin/', admin.site.urls),
     re_path('contactmanager/(?P<version>(v1))/', include('contacts.urls'))
 ]
