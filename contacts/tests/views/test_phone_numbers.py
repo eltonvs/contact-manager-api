@@ -100,6 +100,16 @@ class AddAPhoneNumberToAContactTest(BasePhoneNumbersViewTest):
         self.assertTrue(len(response.data['phone']) > 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_add_another_invalid_phone_number_to_a_contact(self):
+        """
+        This test ensures that an empty phone number cannot be added to a contact
+        """
+        # Use the API endpoint to add a phone number to a contact
+        response = self.add_phone_number(self.valid_contact_id, {'phone': 'invalid'})
+
+        self.assertTrue(len(response.data['phone']) > 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_add_a_phone_number_to_a_nonexistent_contact(self):
         """
         This test ensures that an empty phone number cannot be added to a contact
