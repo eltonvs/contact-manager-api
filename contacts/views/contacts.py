@@ -1,3 +1,4 @@
+import datetime
 from django.db import transaction
 from rest_framework import generics, status
 from rest_framework.exceptions import NotFound
@@ -20,6 +21,19 @@ class SearchContactsView(generics.ListAPIView):
 
         if queryset:
             return queryset.order_by('first_name', 'last_name').distinct()
+        else:
+            raise NotFound()
+
+
+class BirthdaysView(generics.ListAPIView):
+    serializer_class = ContactSerializer
+
+    def get_queryset(self):
+        today = datetime.datetime.now()
+        queryset = Contact.objects.filter(date_of_birth__month=today.month)
+
+        if queryset:
+            return queryset.order_by('date_of_birth__day', 'first_name', 'last_name')
         else:
             raise NotFound()
 
