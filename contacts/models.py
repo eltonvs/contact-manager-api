@@ -13,7 +13,7 @@ class Contact(models.Model):
 
 class PhoneNumber(models.Model):
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='phone_numbers')
-    phone_regex = RegexValidator(regex=r'^\+(?:[0-9] ?){6,14}[0-9]$')
+    phone_regex = RegexValidator(regex=r'^[0-9 -+]+$')
     phone = models.CharField(validators=[phone_regex], max_length=20, unique=True)
 
     def __str__(self):
