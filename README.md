@@ -1,3 +1,5 @@
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=eltonvs/contact-manager-api)](https://dependabot.com)
+
 # Contact Manager API
 
 An API for managing contacts and their information
